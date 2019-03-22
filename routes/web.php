@@ -14,3 +14,13 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+//登陆
+Route::get('login','Login\LoginController@login');
+Route::post('login','Login\LoginController@loginAction');
+Route::post('login/api','Login\LoginController@apiLogin');
+//注册
+Route::get('reg','Login\LoginController@reg');
+Route::post('/register','Login\LoginController@registerAction');
+Route::get('center','Login\LoginController@center')->middleware('check.login');
