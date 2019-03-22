@@ -9,14 +9,15 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $redirect = urldecode($request->input('redirect'));
-        if(empty($redirect)){
+        if (empty($redirect)) {
             $redirect = env('SHOP_URL');
         }
         $info = [
-            'redirect'  =>  $redirect,
+            'redirect' => $redirect,
         ];
-        return view('login.login',$info);
+        return view('login.login', $info);
     }
+
     /**
      * @param Request $request
      * @return array
@@ -27,46 +28,48 @@ class LoginController extends Controller
         $name = $request->input('u_name');
         $password = $request->input('u_pwd');
         //$redirect = urldecode($request->input('redirect')) ?? env('SHOP_URL');
-        $where=[
-            'name'=>$name
+        $where = [
+            'name' => $name
         ];
-        $userInfo=UserModel::where($where)->first();
-        if(empty($userInfo)){
+        $userInfo = UserModel::where($where)->first();
+        if (empty($userInfo)) {
             $response = [
-                'errno' =>  40001,
-                'msg'   =>  '用户名不存在'
+                'errno' => 40001,
+                'msg' => '用户名不存在'
             ];
             return $response;
         }
         $pas = $userInfo->password;
-        if(password_verify($password,$pas)){
+        if (password_verify($password, $pas)) {
             $uid = $userInfo->id;
             $key = 'token:' . $uid;
             $token = Redis::get($key);
-            if(empty($token)){
-                $token = substr(md5(time() + $uid + rand(1000,9999)),10,20);
-                Redis::set($key,$token);
-                Redis::setTimeout($key,60*60*24*7);
+            if (empty($token)) {
+                $token = substr(md5(time() + $uid + rand(1000, 9999)), 10, 20);
+                Redis::set($key, $token);
+                Redis::setTimeout($key, 60 * 60 * 24 * 7);
             }
-            setcookie('xnn_uid',$uid,time()+86400,'/','pass.com',false,true);
-            setcookie('xnn_token',$token,time()+86400,'/','pass.com',false,true);
-            $request->session()->put('xnn_u_token',$token);
-            $request->session()->put('xnn_uid',$uid);
+            setcookie('xnn_uid', $uid, time() + 86400, '/', 'pass.com', false, true);
+            setcookie('xnn_token', $token, time() + 86400, '/', 'pass.com', false, true);
+            $request->session()->put('xnn_u_token', $token);
+            $request->session()->put('xnn_uid', $uid);
             $response = [
-                'errno' =>  0,
-                'msg'   =>  '登陆成功',
+                'errno' => 0,
+                'msg' => '登陆成功',
             ];
-        }else{
+        } else {
             $response = [
-                'errno' =>  40002,
-                'msg'   =>  '登录失败'
+                'errno' => 40002,
+                'msg' => '登录失败'
             ];
         }
         return $response;
     }
+
     public function webLogin()
     {
     }
+
     /**
      * 个人中心
      */
@@ -74,103 +77,106 @@ class LoginController extends Controller
     {
         echo "个人中心";
     }
+
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * 注册页面
      */
-    public  function reg(Request $request)
+    public function reg(Request $request)
     {
         $redirect = urldecode($request->input('redirect'));
-        if(empty($redirect)){
+        if (empty($redirect)) {
             $redirect = env('SHOP_URL');
         }
         $info = [
-            'redirect'  =>  $redirect,
+            'redirect' => $redirect,
         ];
-        return view('login.reg',$info);
+        return view('login.reg', $info);
     }
+
     public function registerAction(Request $request)
     {
-        $pass=$request->input('u_pwd');
-        $pass1=$request->input('u_pwd1');
-        $re=UserModel::where(['name'=>$request->input('u_name')])->first();
-        if($re){
+        $pass = $request->input('u_pwd');
+        $pass1 = $request->input('u_pwd1');
+        $re = UserModel::where(['name' => $request->input('u_name')])->first();
+        if ($re) {
             $response = [
-                'errno' =>  40004,
-                'msg'   =>  '用户名已存在'
+                'errno' => 40004,
+                'msg' => '用户名已存在'
             ];
             return $response;
         }
-        if($pass1!==$pass){
+        if ($pass1 !== $pass) {
             $response = [
-                'errno' =>  40005,
-                'msg'   =>  '密码与确认密码不一致'
+                'errno' => 40005,
+                'msg' => '密码与确认密码不一致'
             ];
             return $response;
         }
-        $pas=password_hash($pass,PASSWORD_BCRYPT);
-        $data=[
-            'name'=>$request->input('u_name'),
-            'password'=>$pas,
-            'email'=>$request->input('u_email'),
-            'add_time'=>time(),
+        $pas = password_hash($pass, PASSWORD_BCRYPT);
+        $data = [
+            'name' => $request->input('u_name'),
+            'password' => $pas,
+            'email' => $request->input('u_email'),
+            'add_time' => time(),
         ];
-        $uid=UserModel::insertGetId($data);
-        if($uid){
+        $uid = UserModel::insertGetId($data);
+        if ($uid) {
             $key = 'token:' . $uid;
-            $token = substr(md5(time() + $uid + rand(1000,9999)),10,20);
-            Redis::set($key,$token);
-            Redis::setTimeout($key,60*60*24*7);
-            setcookie('xnn_uid',$uid,time()+86400,'/','pass.com',false,true);
-            setcookie('xnn_token',$token,time()+86400,'/','pass.com',false,true);
-            $request->session()->put('xnn_u_token',$token);
-            $request->session()->put('xnn_uid',$uid);
+            $token = substr(md5(time() + $uid + rand(1000, 9999)), 10, 20);
+            Redis::set($key, $token);
+            Redis::setTimeout($key, 60 * 60 * 24 * 7);
+            setcookie('xnn_uid', $uid, time() + 86400, '/', 'pass.com', false, true);
+            setcookie('xnn_token', $token, time() + 86400, '/', 'pass.com', false, true);
+            $request->session()->put('xnn_u_token', $token);
+            $request->session()->put('xnn_uid', $uid);
             $response = [
-                'errno' =>  0,
-                'msg'   =>  '注册成功'
+                'errno' => 0,
+                'msg' => '注册成功'
             ];
-        }else{
+        } else {
             $response = [
-                'errno' =>  40006,
-                'msg'   =>  '注册失败'
+                'errno' => 40006,
+                'msg' => '注册失败'
             ];
         }
         return $response;
     }
+
     public function apiLogin(Request $request)
     {
         $name = $request->input('u_name');
         $password = $request->input('u_pwd');
-        $where=[
-            'name'=>$name
+        $where = [
+            'name' => $name
         ];
-        $userInfo=UserModel::where($where)->first();
-        if(empty($userInfo)){
+        $userInfo = UserModel::where($where)->first();
+        if (empty($userInfo)) {
             $response = [
-                'errno' =>  40001,
-                'msg'   =>  '用户名不存在'
+                'errno' => 40001,
+                'msg' => '用户名不存在'
             ];
             return $response;
         }
         $pas = $userInfo->password;
-        if(password_verify($password,$pas)){
+        if (password_verify($password, $pas)) {
             $uid = $userInfo->uid;
             $key = 'api:token:' . $uid;
             $token = Redis::get($key);
-            if(empty($token)){
-                $token = substr(md5(time() + $uid + rand(1000,9999)),10,20);
-                Redis::set($key,$token);
-                Redis::setTimeout($key,60*60*24*7);
+            if (empty($token)) {
+                $token = substr(md5(time() + $uid + rand(1000, 9999)), 10, 20);
+                Redis::set($key, $token);
+                Redis::setTimeout($key, 60 * 60 * 24 * 7);
             }
             $response = [
-                'errno' =>  0,
-                'msg'   =>  '登陆成功',
-                'token' =>  $token
+                'errno' => 0,
+                'msg' => '登陆成功',
+                'token' => $token
             ];
-        }else{
+        } else {
             $response = [
-                'errno' =>  40002,
-                'msg'   =>  '登录失败'
+                'errno' => 40002,
+                'msg' => '登录失败'
             ];
         }
         return $response;
