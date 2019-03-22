@@ -26,4 +26,4 @@ Route::post('/register','Login\LoginController@registerAction');
 Route::get('center','Login\LoginController@center')->middleware('check.login');
 
 
-Route::get('api/login','Login\LoginController@apiLogin');
+Route::post('api/login','Login\LoginController@apiLogin');
