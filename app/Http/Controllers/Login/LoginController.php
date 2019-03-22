@@ -145,8 +145,8 @@ class LoginController extends Controller
 
     public function apiLogin(Request $request)
     {
-        $name = $request->input('u_name');
-        $password = $request->input('u_pwd');
+        $name = $request->input('name');
+        $password = $request->input('password');
         $where = [
             'name' => $name
         ];
