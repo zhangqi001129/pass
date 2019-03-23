@@ -27,3 +27,5 @@ Route::get('center','Login\LoginController@center')->middleware('check.login');
 
 
 Route::post('api/login','Login\LoginController@apiLogin');
+//退出
+Route::get('quit','Login\LoginController@quit');

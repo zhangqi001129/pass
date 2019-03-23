@@ -46,8 +46,8 @@ class LoginController extends Controller
             $token = Redis::get($key);
             if (empty($token)) {
                 $token = substr(md5(time() + $uid + rand(1000, 9999)), 10, 20);
-                Redis::set($key, $token);
-                Redis::setTimeout($key, 60 * 60 * 24 * 7);
+                Redis::del($key);
+                Redis::hset($key,'web', $token);
             }
             setcookie('xnn_uid', $uid, time() + 86400, '/', 'pass.com', false, true);
             setcookie('xnn_token', $token, time() + 86400, '/', 'pass.com', false, true);
@@ -165,8 +165,8 @@ class LoginController extends Controller
             $token = Redis::get($key);
             if (empty($token)) {
                 $token = substr(md5(time() + $uid + rand(1000, 9999)), 10, 20);
-                Redis::set($key, $token);
-                Redis::setTimeout($key, 60 * 60 * 24 * 7);
+                Redis::del($key);
+                Redis::hset($key,'app', $token);
             }
             $response = [
                 'errno' => 0,
@@ -180,5 +180,12 @@ class LoginController extends Controller
             ];
         }
         return $response;
+    }
+
+    public function quit(){
+        $url=$_GET['redirect'];
+        setcookie('xnn_uid',null,time()-1,'/','pass.com',false,true);
+        setcookie('xnn_token',null,time()-1,'/','pass.com',false,true);
+        header("Location:".$url);
     }
 }
